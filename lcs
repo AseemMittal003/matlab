@@ -1,0 +1,23 @@
+cost=[11 21 16 0;7 17 13 0;11 23 21 0];
+a=[14 26 36]; 
+b=[18 28 25 5]; 
+
+[m,n]=size(cost);
+
+bfs=zeros(m,n);
+
+while (any(a>0))
+    [minVal,index]=min(cost(:));
+    [row,col]=ind2sub(size(cost),index);
+    sub_val=min([a(row) b(col)]);
+    a(row)=a(row)-sub_val;
+    b(col)=b(col)-sub_val;
+    if(a(row)==0)
+        cost(row,:)=Inf;
+    end
+    if(b(col)==0)
+        cost(:,col)=Inf;
+    end
+    bfs(row,col)=sub_val;
+end
+bfs
