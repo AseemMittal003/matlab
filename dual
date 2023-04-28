@@ -1,0 +1,28 @@
+c=[-2 -1]; 
+A=[-3 -1;-4 -3;-1 -2]; 
+b=[-3;-6;-3]; 
+
+[m,n]=size(A);
+
+simp_table=[A eye(m) b;-c zeros(1,m+1)];
+basis=n+1:m+n;
+iter=0;
+main_iter=1000;
+
+while(iter<main_iter && any(simp_table(1:end-1,end)<0))
+    [~,row]=min(simp_table(1:end-1,end));
+    ratio=simp_table(end,:)./simp_table(row,:);
+    ratio(ratio>=0)=-Inf;
+    [~,col]=max(ratio);
+    basis(row)=col;
+
+    simp_table(row,:)=simp_table(row,:)./simp_table(row,col);
+
+    for i=1:m+1
+        if(i~=row)
+            simp_table(i,:)=simp_table(i,:)-simp_table(row,:)*simp_table(i,col);
+        end
+    end
+end
+
+simp_table
