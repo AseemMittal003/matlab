@@ -1,0 +1,65 @@
+clc;
+clear all;
+cost= [3 2 0 0 -1000 0];
+info = [1 1 ; 1 3 ;1 -1];
+b = [2;3;1];
+
+s = eye(size(info,1));
+a = [info s b];
+ nofvariables = 2;
+bv =  nofvariables+1:size(a,2)-1;
+zjcj = cost(bv)*a - cost;
+zjc = [zjcj; a];
+
+
+run = true;
+while (run)
+    zc =zjcj(1:end-1);
+ if any ( zc < 0)
+ %finding min and left sol column
+%find pivot column index
+[minval , pvt_col] =min(zc);
+%finding min ratio
+
+pivot_col = a(:,pvt_col);
+
+if all(pivot_col<=0)
+  fprint('unbounded \n');    
+end
+sol = a(:,end);
+for i =1 :size(pivot_col,1)
+    if pivot_col(i)>0
+ratio(i) = sol(i)./pivot_col(i);
+    else
+        ratio(i) = inf;
+    end
+end
+%get min ratio value
+[minratio,pvt_row]= min(ratio);
+ % change bv 
+bv(pvt_row)= pvt_col;  %removes row and enters col
+
+pvt_key = a (pvt_row, pvt_col );
+%divide the key row
+a(pvt_row,:)= a(pvt_row,:)./pvt_key; 
+for i =1:size(a,1)
+ if i~=pvt_row %i not equal to
+     a(i,:)= a(i,:)- a(i,pvt_col).*a(pvt_row,:); %
+ end
+end
+% update for zjcj
+zjcj = zjcj- zjcj(pvt_col).*a(pvt_row,:);
+
+% udpate table
+zjc = [zjcj;a];
+
+
+
+ else 
+     run =false;
+
+%fprintf('%d ',BFS);
+fprintf('optimal solution reached \n');
+ end
+end
+table = array2table(zjc)
