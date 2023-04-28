@@ -1,0 +1,41 @@
+A=[1 4;3 1;1 1];
+b=[24;21;9];
+c=[-2 -5];
+
+[m,n]=size(A);
+
+simp_table=[A eye(m) b;c zeros(1,m+1)];
+basis=n+1:m+n;
+iter=0;
+main_iter=1000;
+
+while(iter<main_iter && any(simp_table(end,:)<0))
+    iter=1+iter;
+    
+    [~,col]=min(simp_table(m+1,:));
+    ratio=simp_table(1:end-1,end)./simp_table(1:end-1,col);
+    ratio(ratio<0)=Inf;
+    if(all(ratio==Inf))
+        disp("unbounded");
+        break;
+    end
+    [~,row]=min(ratio);
+    basis(row)=col;
+    simp_table(row,:)=simp_table(row,:)./simp_table(row,col);
+
+    for i=1:m+1
+        if (i~=row)
+            simp_table(i,:)=simp_table(i,:)-simp_table(i,col)*simp_table(row,:);
+        end
+    end
+end
+
+disp(simp_table)
+disp("basic variables: ");
+basis
+var=zeros(1,n+m);
+var(basis)=simp_table(1:end-1,end);
+disp("variable values: ");
+var
+disp("Objective function value: ");
+simp_table(end,end)
