@@ -1,0 +1,115 @@
+originalcost =[-7.5 3 0 0 0 -1 -1 0];
+info =[3 -1 -1 -1 0 1 0 3;1 -1 1 0 -1 0 1 2] ;
+bv =[6 7];
+%phase 1
+cost = [0 0 0 0 0 -1 -1 0];
+a = info;
+zjcj = cost(bv)* a - cost;
+
+zjc = [zjcj;a];
+startbv=find(cost<0);
+
+run = true;
+while (run)
+  zc =zjcj(1:end-1);
+ if any ( zc < 0)
+ %finding min and left sol column
+
+%find pivot column index
+[minval , pvt_col] =min(zc);
+%finding min ratio
+pivot_col = a(:,pvt_col);
+
+if all(pivot_col<=0)
+  fprint('unbounded \n');    
+end
+sol = a(:,end);
+for i =1 :size(pivot_col,1)
+    if pivot_col(i)>0
+ratio(i) = sol(i)./pivot_col(i);
+    else
+        ratio(i) = inf;
+    end
+end
+%get min ratio value
+[minratio,pvt_row]= min(ratio);
+ % change bv 
+bv(pvt_row)= pvt_col;
+
+pvt_key = a (pvt_row, pvt_col );
+%divide the key row
+a(pvt_row,:)= a(pvt_row,:)/pvt_key; 
+for i =1:size(a,1)
+ if i~=pvt_row
+     a(i,:)= a(i,:)- a(i,pvt_col).*a(pvt_row,:);
+ end
+end
+% update for zjcj
+zjcj = zjcj- zjcj(pvt_col).*a(pvt_row,:);
+
+% udpate table
+zjc = [zjcj;a];
+ bfs(bv)= a(:,end);
+
+ else 
+     run =false;
+fprintf('optimal solution reached \n');
+bfs = bv;
+
+ end
+end
+%phase 2
+
+a(:, startbv)=[];  % remove artifical column
+originalcost(:,startbv)=[];
+
+ cost = originalcost;
+zjcj =  cost(bv)* a - cost;
+zjc = [zjcj;a];
+run = true;
+while (run)
+    zc =zjcj(1:end-1);
+ if any ( zc< 0)
+ %finding min and left sol column
+
+%find pivot column index
+[minval , pvt_col] =min(zc);
+%finding min ratio
+pivot_col = a(:,pvt_col);
+
+if all(pivot_col<=0)
+  fprint('unbounded \n');    
+end
+sol = a(:,end);
+for i =1 :size(pivot_col,1)
+    if pivot_col(i)>0
+ratio(i) = sol(i)./pivot_col(i);
+    else
+        ratio(i) = inf;
+    end
+end
+%get min ratio value
+[minratio,pvt_row]= min(ratio);
+ % change bv 
+bv(pvt_row)= pvt_col;
+
+pvt_key = a (pvt_row, pvt_col );
+%divide the key row
+a(pvt_row,:)= a(pvt_row,:)./pvt_key; 
+for i =1:size(a,1)
+ if i~=pvt_row
+     a(i,:)= a(i,:)- a(i,pvt_col).*a(pvt_row,:);
+ end
+end
+% update for zjcj
+zjcj = zjcj- zjcj(pvt_col).*a(pvt_row,:);
+
+% udpate table
+zjc = [zjcj;a];
+
+ else 
+     run =false;
+fprintf('optimal solution reached \n');
+ end
+end
+zjc
